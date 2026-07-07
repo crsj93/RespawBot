@@ -271,7 +271,7 @@ client.on('interactionCreate', async (interaction) => {
     const state = respawnState.get(respawn);
     const usuario = interaction.user;
 
-    // Impede o usuário de entrar duas vezes no mesmo respawn
+    // 1. SUAS TRAVAS ORIGINAIS (Para o MESMO respawn)
     if (state.currentUser?.id === usuario.id) {
       return interaction.reply({
         content: `⚠️ Você já está com o **${respawn}** em seu poder!`,
@@ -281,6 +281,15 @@ client.on('interactionCreate', async (interaction) => {
     if (state.queue.some((u) => u.id === usuario.id)) {
       return interaction.reply({
         content: `⚠️ Você já está na fila de espera do **${respawn}**!`,
+        ephemeral: true,
+      });
+    }
+
+    // 2. NOVA TRAVA GLOBAL (Para EVITAR que ele pegue OUTRO respawn diferente)
+    const userStatus = checkUserGlobalStatus(usuario.id);
+    if (userStatus) {
+      return interaction.reply({
+        content: `⚠️ Você já está **${userStatus.type}** no respawn **${userStatus.respawn}**! Saia de lá primeiro antes de dar claim em outro.`,
         ephemeral: true,
       });
     }
